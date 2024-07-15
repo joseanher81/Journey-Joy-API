@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const moongose = require('mongoose');
+const userRoutes = require('./routes/userRoutes');
 
 // express app
 const app = express();
@@ -14,6 +15,7 @@ app.use((req, res, next) => {
 });
 
 // routes
+app.use('/api/user', userRoutes);
 
 // connect to db
 moongose.connect(process.env.MONGO_URI)
