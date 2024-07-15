@@ -46,12 +46,11 @@ const updateUser = async (req, res) => {
 
     try {
         const updatedUser = await User.findByIdAndUpdate(id, { displayName, photoURL, theme }, { new: true, runValidators: true});
-        const { password, ...userWithoutPassword } = updatedUser;
-
 
         // TODO Send personalized error if user is not found? -> findByIdAndUpdate throws an error if wrong id
 
-        res.status(200).send({ message: 'User updated successfully', user: {id: updatedUser.id, theme: updatedUser.theme, photoURL: updatedUser.photoURL} })
+        const {password, ...user} = updatedUser._doc; // avoid returning sensible data such as password
+        res.status(200).send({ message: 'User updated successfully', user })
         
     } catch (error) {
         res.status(500).send({message: 'Error updating user', error});
@@ -59,4 +58,23 @@ const updateUser = async (req, res) => {
 
 }
 
-module.exports = { loginUser, signupUser, updateUser }
+// GET USER INFO
+const getUser = async (req, res) => {
+
+    const {id} = req.params;
+
+    try {
+        const userFound = await User.findById(id);
+       
+        if(!userFound) {
+            return res.status(404).send({ message: 'User not found' });
+        }
+        
+        const {password, ...user} = userFound._doc; // avoid returning sensible data such as password
+        res.status(200).send(user);
+    } catch (error) {
+        res.status(400).json({error: error.message});
+    }
+}
+
+module.exports = { loginUser, signupUser, updateUser, getUser }
