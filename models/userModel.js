@@ -21,11 +21,11 @@ const userSchema = new Schema({
 });
 
 // static signup method
-userSchema.statics.signup = async function(email, password) {
+userSchema.statics.signup = async function(email, password, displayName, photoURL) {
 
     // validations
     if(!email || !password) {
-        throw Error('All fields must be filed');
+        throw Error('Email and Password fields must be filed');
     }
     if(!validator.isEmail(email)) {
         throw Error('Email not valid');
@@ -43,7 +43,7 @@ userSchema.statics.signup = async function(email, password) {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const user = await this.create({ email, password: hashedPassword});
+    const user = await this.create({ email, password: hashedPassword, displayName, photoURL, theme: 'light', online: true});
 
     return user;
 }
@@ -59,13 +59,13 @@ userSchema.statics.login = async function(email, password) {
     // check if user email exists in db
     const user = await this.findOne({ email} );
     if(!user) {
-        throw Error('Invalid credentials');
+        throw Error('Invalid credentials NOT FOUND');
     }
 
     // check if provided password matches with the one in db
     const match = await bcrypt.compare(password, user.password);
     if(!match) {
-        throw Error('Invalid credentials');
+        throw Error('Invalid credentials DONT MATCH');
     }
 
     return user;
