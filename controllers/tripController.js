@@ -4,6 +4,7 @@ const Document = require('../models/documentModel');
 const mongoose = require('mongoose');
 const { differenceInDays } = require('date-fns');
 const { checkEmptyFields, loadPlacePicture, findISOAndCountryByPlace } = require('../helpers/utils');
+const { saveFileToStorage } = require('../helpers/firebase');
 
 // Get all trips
 const getTrips = async (req, res) => {
@@ -106,10 +107,10 @@ const createComment = async (req, res) => {
 
 // Create a new document
 const createDocument = async (req, res) => {
-    const { tripId, fileUrl, description, type } = req.body;
+    const { tripId, description, type } = req.body;
 
     // List of required fields
-    const requiredFields = { tripId, fileUrl, description, type};
+    const requiredFields = { tripId, description, type};
 
     // Check empty required fields
     const emptyFields = checkEmptyFields(requiredFields);
@@ -119,6 +120,15 @@ const createDocument = async (req, res) => {
     }
 
     try {
+
+        // Check file to upliad
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file to upload' });
+        }
+
+        // Save file to storage
+        const fileUrl = await saveFileToStorage(req.file.buffer, req.file.originalname, req.file.mimetype);
+        console.log('fileurl', fileUrl)
 
         // Create a new document instance
         const document = await Document.create({ fileUrl, description, type });

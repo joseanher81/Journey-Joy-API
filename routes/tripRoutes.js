@@ -1,8 +1,10 @@
 const express = require('express');
 const { createTrip, createComment, getTrips, getTrip, createDocument } = require('../controllers/tripController');
 const requireAuth = require('../middleware/requireAuth');
+const multer = require('multer');
 
 const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
 // require auth protection for all trip routes (Only logged users can request)
 router.use(requireAuth);
@@ -20,6 +22,6 @@ router.post('/', createTrip);
 router.post('/comment', createComment);
 
 // POST a new document
-router.post('/document', createDocument);
+router.post('/document', upload.single('file'), createDocument);
 
 module.exports = router;
