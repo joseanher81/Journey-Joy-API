@@ -1,5 +1,6 @@
 const Trip = require('../models/tripModel');
 const Comment = require('../models/commentModel');
+const mongoose = require('mongoose');
 const { differenceInDays } = require('date-fns');
 const { checkEmptyFields, loadPlacePicture, findISOAndCountryByPlace } = require('../helpers/utils');
 
@@ -10,6 +11,25 @@ const getTrips = async (req, res) => {
 
     const trips = await Trip.find({createdBy: userId}).sort({createdAt: -1}); // fin all user trips in db
     res.status(200).json(trips);
+}
+
+// Get a single trip
+const getTrip = async (req, res) => {
+
+    const { id } = req.params;
+
+    // Check if the ID is valid
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({error: 'Trip not found'})
+    }
+
+    const trip = await Trip.findById(id);
+
+    if (!trip) {
+        return res.status(404).json({error: 'Trip not found'});
+    }
+
+    return res.status(200).json(trip);
 }
 
 // Create a trip
@@ -82,4 +102,4 @@ const createComment = async (req, res) => {
 
 }
 
-module.exports = { getTrips, createTrip, createComment }
+module.exports = { getTrips, getTrip, createTrip, createComment }

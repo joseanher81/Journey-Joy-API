@@ -1,5 +1,5 @@
 const express = require('express');
-const { createTrip, createComment, getTrips } = require('../controllers/tripController');
+const { createTrip, createComment, getTrips, getTrip } = require('../controllers/tripController');
 const requireAuth = require('../middleware/requireAuth');
 
 const router = express.Router();
@@ -9,6 +9,9 @@ router.use(requireAuth);
 
 // GET all user trips
 router.get('/', getTrips);
+
+// GET a single trip
+router.get('/:id', getTrip);
 
 // POST a new trip
 router.post('/', createTrip);
