@@ -1,5 +1,6 @@
 const Trip = require('../models/tripModel');
 const Comment = require('../models/commentModel');
+const Document = require('../models/documentModel');
 const mongoose = require('mongoose');
 const { differenceInDays } = require('date-fns');
 const { checkEmptyFields, loadPlacePicture, findISOAndCountryByPlace } = require('../helpers/utils');
@@ -66,6 +67,7 @@ const createTrip = async (req, res) => {
 const createComment = async (req, res) => {
 
     const { content, tripId, author } = req.body; // TODO Author deberá venir de un middleware de usuario
+    //const author = req.user._id; // user id from token in auth middleware
 
     // List of required fields
     const requiredFields = { content, author };
@@ -102,4 +104,42 @@ const createComment = async (req, res) => {
 
 }
 
-module.exports = { getTrips, getTrip, createTrip, createComment }
+// Create a new document
+const createDocument = async (req, res) => {
+    const { tripId, fileUrl, description, type } = req.body;
+
+    // List of required fields
+    const requiredFields = { tripId, fileUrl, description, type};
+
+    // Check empty required fields
+    const emptyFields = checkEmptyFields(requiredFields);
+
+    if (emptyFields.length > 0) {
+        return res.status(400).json({ error: 'Please fill in all fields', emptyFields });
+    }
+
+    try {
+
+        // Create a new document instance
+        const document = await Document.create({ fileUrl, description, type });
+
+        // Find trip by ID
+        const trip = await Trip.findById(tripId);
+
+        if(!trip) {
+            return res.status(400).json({ error: 'Trip not found' });
+        }
+
+        // Add comment to array in Trip and save
+        trip.documents.push(document._id);
+        trip.save();
+
+        return res.status(200).json(trip);
+        
+    } catch (error) {
+        res.status(400).json({error: error.message});    
+    }
+
+}
+
+module.exports = { getTrips, getTrip, createTrip, createComment, createDocument }

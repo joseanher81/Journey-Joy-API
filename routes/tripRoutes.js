@@ -1,5 +1,5 @@
 const express = require('express');
-const { createTrip, createComment, getTrips, getTrip } = require('../controllers/tripController');
+const { createTrip, createComment, getTrips, getTrip, createDocument } = require('../controllers/tripController');
 const requireAuth = require('../middleware/requireAuth');
 
 const router = express.Router();
@@ -20,6 +20,6 @@ router.post('/', createTrip);
 router.post('/comment', createComment);
 
 // POST a new document
-//router.post('/comment', );
+router.post('/document', createDocument);
 
 module.exports = router;
