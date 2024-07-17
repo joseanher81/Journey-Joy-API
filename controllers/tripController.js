@@ -3,6 +3,15 @@ const Comment = require('../models/commentModel');
 const { differenceInDays } = require('date-fns');
 const { checkEmptyFields, loadPlacePicture, findISOAndCountryByPlace } = require('../helpers/utils');
 
+// Get all trips
+const getTrips = async (req, res) => {
+
+    const userId = req.user._id; // user id from token in auth middleware
+
+    const trips = await Trip.find({createdBy: userId}).sort({createdAt: -1}); // fin all user trips in db
+    res.status(200).json(trips);
+}
+
 // Create a trip
 const createTrip = async (req, res) => {
     
@@ -73,4 +82,4 @@ const createComment = async (req, res) => {
 
 }
 
-module.exports = { createTrip, createComment }
+module.exports = { getTrips, createTrip, createComment }
