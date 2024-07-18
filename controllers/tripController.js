@@ -253,7 +253,7 @@ const deleteDocument = async (req, res) => {
         return res.status(404).json({ message: 'Document not found' });
     }
 
-    res.status(200).json("Document removed successfully");
+    res.status(200).json({ message:  "Document removed successfully" });
 }
 
 // Create an activity
@@ -293,4 +293,36 @@ const createActivity = async (req, res) => {
     }
 }
 
-module.exports = { getTrips, getTrip, createTrip, deleteTrip, createComment, deleteComment, createDocument, deleteDocument, createActivity }
+// Delete an activity
+const deleteActivity = async (req, res) => {
+    const { dayId, activityId } = req.params;
+
+    // Check if the ID is valid (NOT SURE IF NEEDED!)
+    if (!mongoose.Types.ObjectId.isValid(dayId) || !mongoose.Types.ObjectId.isValid(activityId) ) {
+        return res.status(404).json({error: 'Invalid day or activity'})
+    }
+
+    try {
+
+        // Find the day document
+        const day = await Day.findById(dayId);
+        if(!day) {
+            return res.status(400).json({error: 'Day not found'});
+        }
+
+        // Remove the activity from the activities array
+        day.activities.pull(activityId);
+        await day.save();
+
+        // Remove the activity from the database
+        await Activity.findByIdAndDelete(activityId);
+
+        res.status(200).json({ message: 'Activity removed successfully' });
+        
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+
+}
+
+module.exports = { getTrips, getTrip, createTrip, deleteTrip, createComment, deleteComment, createDocument, deleteDocument, createActivity, deleteActivity }
