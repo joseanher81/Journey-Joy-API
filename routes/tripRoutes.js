@@ -1,5 +1,5 @@
 const express = require('express');
-const { createTrip, createComment, getTrips, getTrip, createDocument, deleteTrip, deleteComment, deleteDocument, createActivity, deleteActivity } = require('../controllers/tripController');
+const { createTrip, createComment, getTrips, getTrip, createDocument, deleteTrip, deleteComment, deleteDocument, createActivity, deleteActivity, updateActivity } = require('../controllers/tripController');
 const requireAuth = require('../middleware/requireAuth');
 const multer = require('multer');
 
@@ -38,5 +38,8 @@ router.post('/activity', createActivity);
 
 // DELETE an activity
 router.delete('/day/:dayId/activity/:activityId', deleteActivity);
+
+// UPDATE an activity
+router.patch('/activity/:id', updateActivity);
 
 module.exports = router;
