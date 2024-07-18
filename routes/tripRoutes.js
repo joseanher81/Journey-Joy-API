@@ -1,5 +1,5 @@
 const express = require('express');
-const { createTrip, createComment, getTrips, getTrip, createDocument } = require('../controllers/tripController');
+const { createTrip, createComment, getTrips, getTrip, createDocument, deleteTrip, deleteComment, deleteDocument } = require('../controllers/tripController');
 const requireAuth = require('../middleware/requireAuth');
 const multer = require('multer');
 
@@ -18,10 +18,19 @@ router.get('/:id', getTrip);
 // POST a new trip
 router.post('/', createTrip);
 
+// DELETE a trip
+router.delete('/:id', deleteTrip);
+
 // POST a new comment
 router.post('/comment', createComment);
 
+// DELETE a comment
+router.delete('/comment/:id', deleteComment);
+
 // POST a new document
 router.post('/document', upload.single('file'), createDocument);
+
+// DELETE a document
+router.delete('/document/:id', deleteDocument);
 
 module.exports = router;

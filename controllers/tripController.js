@@ -64,6 +64,49 @@ const createTrip = async (req, res) => {
     }
 }
 
+// Delete a trip
+const deleteTrip = async (req, res) => {
+
+    const userId = req.user._id; // user id from token in auth middleware
+    const { id } = req.params; // trip id to delete
+
+    // Check if the ID is valid
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({error: 'No such trip'})
+    }
+
+    try {
+        const trip = await Trip.findById(id)
+            .populate('comments')
+            .populate('documents');
+
+        // Check if trip exists
+        if (!trip) {
+            return res.status(404).json({ message: 'Trip not found' });
+        }
+       
+        // Check if the user is the creator of trip (Only the person who has created the trip can delete it)
+        if ( userId.toString() !== trip.createdBy.toString() ) {
+            return res.status(403).json({error: "Only trips created by user can be deleted"});
+        }
+
+        // Remove trip
+        await trip.deleteOne();
+
+        // Remove all associated comments and documents
+        await Promise.all([
+            Comment.deleteMany({ _id: { $in: trip.comments } }),
+            Document.deleteMany({ _id: { $in: trip.documents } })
+        ]);
+
+        res.status(200).json("Trip removed successfully");
+        
+    } catch (error) {
+        res.status(400).json({error: error.message});
+    }
+
+}
+
 // Create a comment
 const createComment = async (req, res) => {
 
@@ -102,6 +145,34 @@ const createComment = async (req, res) => {
         res.status(400).json({error: error.message});    
     }
 
+}
+
+// Delete comment
+const deleteComment = async (req, res) => {
+    const userId = req.user._id; // user id from token in auth middleware
+    const { id } = req.params; // comment id to delete
+
+    // Check if the ID is valid (NOT SURE IF NEEDED!)
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({error: 'No such trip'})
+    }
+
+    const comment = await Comment.findById(id);
+
+    // Check if comment exists
+    if (!comment) {
+        return res.status(404).json({ message: 'Comment not found' });
+    }
+   
+    // Check if the user is the creator of comment (Only the person who has created the comment can delete it)
+    if ( userId.toString() !== comment.author.toString() ) {
+        return res.status(403).json({error: "Only comments created by user can be deleted"});
+    }
+
+    // Remove comment
+    await comment.deleteOne();
+
+    res.status(200).json("Comment removed successfully");
 
 }
 
@@ -152,4 +223,23 @@ const createDocument = async (req, res) => {
 
 }
 
-module.exports = { getTrips, getTrip, createTrip, createComment, createDocument }
+// Delete a document TODO: in the future could check if the user has rights to delete the document, adding an author field to the model
+const deleteDocument = async (req, res) => {
+    const { id } = req.params; // comment id to delete
+
+    // Check if the ID is valid (NOT SURE IF NEEDED!)
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({error: 'No such document'})
+    }
+
+    const document = await Document.findByIdAndDelete(id);
+
+    // Check if comment exists
+    if (!document) {
+        return res.status(404).json({ message: 'Document not found' });
+    }
+
+    res.status(200).json("Document removed successfully");
+}
+
+module.exports = { getTrips, getTrip, createTrip, deleteTrip, createComment, deleteComment, createDocument, deleteDocument }
