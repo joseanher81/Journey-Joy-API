@@ -83,7 +83,12 @@ const deleteTrip = async (req, res) => {
         const trip = await Trip.findById(id)
             .populate('comments')
             .populate('documents')
-            .populate('days');
+            .populate({
+                path: 'days',
+                populate: {
+                    path: 'activities'
+                }
+            });
 
         // Check if trip exists
         if (!trip) {
@@ -98,11 +103,14 @@ const deleteTrip = async (req, res) => {
         // Remove trip
         await trip.deleteOne();
 
-        // Remove all associated comments and documents
+        // Remove all associated comments, documents, days and activities
         await Promise.all([
             Comment.deleteMany({ _id: { $in: trip.comments } }),
             Document.deleteMany({ _id: { $in: trip.documents } }),
-            Day.deleteMany({ _id: { $in: trip.days } })
+            ...trip.days.map(async (day) => {
+                await Activity.deleteMany({ _id: { $in: day.activities } });
+                await Day.deleteOne({ _id: day._id });
+            })
         ]);
 
         res.status(200).json("Trip removed successfully");
