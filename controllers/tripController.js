@@ -3,7 +3,7 @@ const Comment = require('../models/commentModel');
 const Document = require('../models/documentModel');
 const mongoose = require('mongoose');
 const { differenceInDays } = require('date-fns');
-const { checkEmptyFields, loadPlacePicture, findISOAndCountryByPlace } = require('../helpers/utils');
+const { checkEmptyFields, loadPlacePicture, findISOAndCountryByPlace, createDaysArray } = require('../helpers/utils');
 const { saveFileToStorage } = require('../helpers/firebase');
 
 // Get all trips
@@ -55,8 +55,10 @@ const createTrip = async (req, res) => {
         const [iso, country] = await findISOAndCountryByPlace(place);  // Get country ISO (needed for map representation)
         const pictureUrl = await loadPlacePicture(place);  // Get image for place
         const travelDuration = differenceInDays(new Date(endDate), new Date(startDate)) + 1; // Calculate number of trip days
+        const days = createDaysArray(travelDuration); // Create days
 
-        const trip = await Trip.create({createdBy, title, place, startDate, endDate, description, iso, country, pictureUrl, travelDuration, companions});
+        const trip = await Trip.create({createdBy, title, place, startDate, endDate, description, iso, country, pictureUrl, travelDuration, companions, days});
+       
         res.status(200).json(trip);
         
     } catch (error) {

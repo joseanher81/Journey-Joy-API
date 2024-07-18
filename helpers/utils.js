@@ -1,3 +1,5 @@
+const Day = require('../models/dayModel');
+
 // Check if any field in an array of fields is empty
 const checkEmptyFields = (fields) => {
     let emptyFields = [];
@@ -56,6 +58,17 @@ const findISOAndCountryByPlace = async(place) => {
       }
 } 
 
+const createDaysArray = (travelDuration) => {
+  const daysArray = [];
+  for(let i = 0; i < travelDuration; i++) {
+    const day = new Day({dayNumber: i});
+    day.save();
+    daysArray.push(day);
+  }
+
+  return daysArray;
+} 
+
   
-module.exports = { checkEmptyFields, loadPlacePicture, findISOAndCountryByPlace };
+module.exports = { checkEmptyFields, loadPlacePicture, findISOAndCountryByPlace, createDaysArray };
   
