@@ -1,6 +1,7 @@
 const Trip = require('../models/tripModel');
 const Comment = require('../models/commentModel');
 const Document = require('../models/documentModel');
+const Day = require('../models/dayModel');
 const mongoose = require('mongoose');
 const { differenceInDays } = require('date-fns');
 const { checkEmptyFields, loadPlacePicture, findISOAndCountryByPlace, createDaysArray } = require('../helpers/utils');
@@ -80,7 +81,8 @@ const deleteTrip = async (req, res) => {
     try {
         const trip = await Trip.findById(id)
             .populate('comments')
-            .populate('documents');
+            .populate('documents')
+            .populate('days');
 
         // Check if trip exists
         if (!trip) {
@@ -98,7 +100,8 @@ const deleteTrip = async (req, res) => {
         // Remove all associated comments and documents
         await Promise.all([
             Comment.deleteMany({ _id: { $in: trip.comments } }),
-            Document.deleteMany({ _id: { $in: trip.documents } })
+            Document.deleteMany({ _id: { $in: trip.documents } }),
+            Day.deleteMany({ _id: { $in: trip.days } })
         ]);
 
         res.status(200).json("Trip removed successfully");
