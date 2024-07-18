@@ -2,6 +2,7 @@ const Trip = require('../models/tripModel');
 const Comment = require('../models/commentModel');
 const Document = require('../models/documentModel');
 const Day = require('../models/dayModel');
+const Activity = require('../models/activityModel');
 const mongoose = require('mongoose');
 const { differenceInDays } = require('date-fns');
 const { checkEmptyFields, loadPlacePicture, findISOAndCountryByPlace, createDaysArray } = require('../helpers/utils');
@@ -247,4 +248,41 @@ const deleteDocument = async (req, res) => {
     res.status(200).json("Document removed successfully");
 }
 
-module.exports = { getTrips, getTrip, createTrip, deleteTrip, createComment, deleteComment, createDocument, deleteDocument }
+// Create an activity
+const createActivity = async (req, res) => {
+    const { dayId, activityName, activityType } = req.body; 
+
+    // List of required fields
+    const requiredFields = { dayId, activityName, activityType };
+
+    // Check empty required fields
+    const emptyFields = checkEmptyFields(requiredFields);
+
+    if (emptyFields.length > 0) {
+        return res.status(400).json({ error: 'Please fill in all fields', emptyFields });
+    }
+
+    try {
+
+        // Find day by ID
+        const day = await Day.findById(dayId);
+
+        if(!day) {
+            return res.status(400).json({ error: 'Day not found' });
+        }
+
+        // Create a new activity instance
+        const activity = await Activity.create({ activityName, activityType, position: day.activities.length }); // initial position at the end of day
+
+        // Add comment to array in Trip and save
+        day.activities.push(activity._id);
+        day.save();
+
+        return res.status(200).json(day);
+        
+    } catch (error) {
+        res.status(400).json({error: error.message});    
+    }
+}
+
+module.exports = { getTrips, getTrip, createTrip, deleteTrip, createComment, deleteComment, createDocument, deleteDocument, createActivity }
