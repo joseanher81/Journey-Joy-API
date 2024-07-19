@@ -350,4 +350,30 @@ const updateActivity = async (req, res) => {
     }
 }
 
-module.exports = { getTrips, getTrip, createTrip, deleteTrip, createComment, deleteComment, createDocument, deleteDocument, createActivity, deleteActivity, updateActivity }
+// Update a day (order of activities within the day) //This expects a new array of Actities Ids in the new order
+const updateDay = async (req, res) => {
+    const { id } = req.params;
+    const update = req.body;
+
+    // Check if the ID is valid
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({error: 'Invalid day'})
+    }
+
+    try {
+        // Update the activities of the day
+        const updatedDay = await Day.findByIdAndUpdate(id, update, { new: true});
+
+        // Check if day exists
+        if(!updateDay) {
+            return res.status(404).json({ error: 'Day not found'});
+        }
+
+        res.status(200).json(updatedDay);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+
+}
+
+module.exports = { getTrips, getTrip, createTrip, deleteTrip, createComment, deleteComment, createDocument, deleteDocument, createActivity, deleteActivity, updateActivity, updateDay }
