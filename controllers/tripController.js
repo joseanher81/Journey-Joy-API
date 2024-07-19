@@ -315,7 +315,11 @@ const deleteActivity = async (req, res) => {
         await day.save();
 
         // Remove the activity from the database
-        await Activity.findByIdAndDelete(activityId);
+        const deletedActivity = await Activity.findByIdAndDelete(activityId);
+        console.log(deletedActivity)
+        if(!deletedActivity) {
+            return res.status(404).json({ error: 'Activity not found'});
+        }
 
         res.status(200).json({ message: 'Activity removed successfully' });
         
