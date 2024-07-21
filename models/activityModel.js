@@ -11,6 +11,11 @@ const activitySchema = new Schema({
         type: String,
         required: true
     },
+    dayId: {
+        type: Schema.Types.ObjectId, 
+        ref: 'Day',
+        required: true 
+    },
     start: Date
 });
 

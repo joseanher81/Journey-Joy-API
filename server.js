@@ -4,6 +4,10 @@ const express = require('express');
 const moongose = require('mongoose');
 const userRoutes = require('./routes/userRoutes');
 const tripRoutes = require('./routes/tripRoutes');
+const documentRoutes = require('./routes/documentRoutes');
+const dayRoutes = require('./routes/dayRoutes');
+const activityRoutes = require('./routes/activityRoutes');
+const commentRoutes = require('./routes/commentRoutes');
 
 // express app
 const app = express();
@@ -18,6 +22,10 @@ app.use((req, res, next) => {
 // routes
 app.use('/api/user', userRoutes);
 app.use('/api/trips', tripRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/days', dayRoutes);
+app.use('/api/activities', activityRoutes);
+app.use('/api/comments', commentRoutes);
 
 // connect to db
 moongose.connect(process.env.MONGO_URI)

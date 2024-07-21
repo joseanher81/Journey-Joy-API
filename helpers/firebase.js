@@ -39,7 +39,23 @@ async function saveFileToStorage(fileBuffer, originalName, mimeType) {
       stream.end(fileBuffer);
     });
   }
+
+async function deleteFileFromStorage(fileUrl) {
+  // Get file name from URL
+  const fileName = fileUrl.split('/').pop().split('?')[0];
+
+  const file = bucket.file(fileName);
+
+  try {
+      await file.delete();
+      console.log(`File ${fileName} deleted successfully.`);
+  } catch (error) {
+      console.error(`Error deleting file ${fileName}:`, error);
+      throw new Error(`Failed to delete file from storage: ${error.message}`);
+  }
+}
   
   module.exports = {
     saveFileToStorage,
+    deleteFileFromStorage
   };
