@@ -1,4 +1,6 @@
 require('dotenv').config();
+const cors = require('cors');
+
 
 const express = require('express');
 const moongose = require('mongoose');
@@ -13,6 +15,7 @@ const commentRoutes = require('./routes/commentRoutes');
 const app = express();
 
 // midlewares
+app.use(cors()); // Activamos CORS para cualquier origen
 app.use(express.json());
 app.use((req, res, next) => {
     console.log(req.path, req.method);
