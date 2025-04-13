@@ -54,7 +54,7 @@ const createTrip = async (req, res) => {
     }
 
     try {
-        
+        console.log('Creating trip...', place, startDate, endDate);
         // Fill dinamic fields
         const [iso, country] = await findISOAndCountryByPlace(place);  // Get country ISO (needed for map representation)
         const pictureUrl = await loadPlacePicture(place);  // Get image for place
