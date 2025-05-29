@@ -3,7 +3,7 @@ const path = require("path");
 
 const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
 
-// Reemplaza \\n por saltos de línea reales para que el formato PEM sea válido
+// Setting correct PEM Format for env variable
 serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, "\n");
 
 admin.initializeApp({
