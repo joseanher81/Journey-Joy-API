@@ -14,7 +14,19 @@ const getTrips = async (req, res) => {
 
     const userId = req.user._id; // user id from token in auth middleware
 
-    const trips = await Trip.find({createdBy: userId}).sort({createdAt: -1}); // fin all user trips in db
+    // fin all user trips in db
+    const trips = await Trip.find({ createdBy: userId })
+        .sort({ createdAt: -1 })
+        .populate({
+            path: 'days',
+            populate: {
+            path: 'activities'
+            }
+        })
+        .populate('comments')
+        .populate('companions')
+        .populate('documents');
+
     res.status(200).json(trips);
 }
 
@@ -28,7 +40,16 @@ const getTrip = async (req, res) => {
         return res.status(404).json({error: 'Trip not found'})
     }
 
-    const trip = await Trip.findById(tripId);
+    const trip = await Trip.findById(tripId)
+    .populate({
+      path: 'days',
+      populate: {
+        path: 'activities'
+      }
+    })
+    .populate('comments')
+    .populate('companions')
+    .populate('documents');
 
     if (!trip) {
         return res.status(404).json({error: 'Trip not found'});
@@ -59,9 +80,17 @@ const createTrip = async (req, res) => {
         const [iso, country] = await findISOAndCountryByPlace(place);  // Get country ISO (needed for map representation)
         const pictureUrl = await loadPlacePicture(place);  // Get image for place
         const travelDuration = differenceInDays(new Date(endDate), new Date(startDate)) + 1; // Calculate number of trip days
-        const days = createDaysArray(travelDuration); // Create days
+        const days = await createDaysArray(travelDuration, startDate); // Create days
 
         const trip = await Trip.create({createdBy: userId, title, place, startDate, endDate, description, iso, country, pictureUrl, travelDuration, companions, days});
+
+        // Populate days with activities
+        await trip.populate({
+            path: 'days',
+            populate: {
+              path: 'activities'
+            }
+        });
        
         res.status(200).json(trip);
         

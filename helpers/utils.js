@@ -1,4 +1,5 @@
 const Day = require('../models/dayModel');
+const { addDays } = require('date-fns'); 
 
 // Check if any field in an array of fields is empty
 const checkEmptyFields = (fields) => {
@@ -58,12 +59,23 @@ const findISOAndCountryByPlace = async(place) => {
       }
 } 
 
-const createDaysArray = (travelDuration) => {
+const createDaysArray = async (travelDuration, startDate) => {
   const daysArray = [];
-  for(let i = 0; i < travelDuration; i++) {
+/*   for(let i = 0; i < travelDuration; i++) {
     const day = new Day({dayNumber: i});
     day.save();
     daysArray.push(day);
+  } */
+
+  for (let i = 0; i < travelDuration; i++) {
+    const date = addDays(new Date(startDate), i); // Suma i días al startDate
+    const day = new Day({
+      dayNumber: i + 1,       // day 1, 2, 3...
+      dayDate: date           // date of the day
+    });
+
+    await day.save(); // to be sure it is saved before pushing to the array
+    daysArray.push(day._id); // return just the id of the day
   }
 
   return daysArray;

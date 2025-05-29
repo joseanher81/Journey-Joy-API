@@ -7,6 +7,10 @@ const daySchema = new Schema({
         type: Number,
         required: true
     },
+    dayDate: {
+        type: Date,
+        required: true  // Puedes quitar esto si no siempre se va a definir
+    },
     activities: [{
         type: Schema.Types.ObjectId, 
         ref: 'Activity'

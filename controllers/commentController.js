@@ -5,6 +5,7 @@ const { checkEmptyFields } = require('../helpers/utils');
 
 // Create a comment
 const createComment = async (req, res) => {
+    console.log('creating comment');
 
     const { content, tripId } = req.body; 
     const userId = req.user._id; // user id from token in auth middleware
@@ -16,6 +17,7 @@ const createComment = async (req, res) => {
     const emptyFields = checkEmptyFields(requiredFields);
 
     if (emptyFields.length > 0) {
+        console.log('empty fields', emptyFields);
         return res.status(400).json({ error: 'Please fill in all fields', emptyFields });
     }
 
@@ -28,13 +30,15 @@ const createComment = async (req, res) => {
         const trip = await Trip.findById(tripId);
 
         if(!trip) {
+            console.log('trip not found');
             return res.status(400).json({ error: 'Trip not found' });
         }
 
         // Add comment to array in Trip and save
         trip.comments.push(comment._id);
         await trip.save();
-
+console.log('trip', trip);
+        // Add trip to comment and save
         return res.status(200).json(trip);
         
     } catch (error) {

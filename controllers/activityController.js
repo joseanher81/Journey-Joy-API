@@ -6,10 +6,11 @@ const { checkEmptyFields } = require('../helpers/utils');
 
 // Create an activity
 const createActivity = async (req, res) => {
-    const { dayId, activityName, activityType } = req.body; 
+    const { dayId, activityName, activityType, pos, start } = req.body; 
 
     // List of required fields
     const requiredFields = { dayId, activityName, activityType };
+    
 
     // Check empty required fields
     const emptyFields = checkEmptyFields(requiredFields);
@@ -28,11 +29,11 @@ const createActivity = async (req, res) => {
         }
 
         // Create a new activity instance
-        const activity = await Activity.create({ activityName, activityType, dayId });
-
+        const activity = await Activity.create({ activityName, activityType, dayId, pos, start });
+        
         // Add activity to array in Trip and save
         day.activities.push(activity._id);
-        day.save();
+        await day.save();
 
         return res.status(200).json(day);
         
@@ -101,4 +102,40 @@ const updateActivity = async (req, res) => {
     }
 }
 
-module.exports = { createActivity, deleteActivity, updateActivity }
+const updateMultipleActivities = async (req, res) => {
+    console.log('Datos recibidos para actualización:');
+    const updates = req.body; // Array de objetos con { id, fieldsToUpdate }
+
+    console.log('Datos recibidos para actualización:', req.body);
+  
+    if (!Array.isArray(updates)) {
+      return res.status(400).json({ error: 'Invalid request format' });
+    }
+  
+    const results = [];
+  
+    try {
+      for (const update of updates) {
+        const { id, ...fields } = update;
+  
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+          results.push({ id, success: false, error: 'Invalid ID' });
+          continue;
+        }
+  
+        const updated = await Activity.findByIdAndUpdate(id, fields, { new: true });
+  
+        if (!updated) {
+          results.push({ id, success: false, error: 'Activity not found' });
+        } else {
+          results.push({ id, success: true, updated });
+        }
+      }
+  
+      res.status(200).json(results);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+module.exports = { createActivity, deleteActivity, updateActivity, updateMultipleActivities }

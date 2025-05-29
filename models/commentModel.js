@@ -7,7 +7,19 @@ const commentSchema = new Schema({
         type: String,
         required: true
     },
-    userId: {
+    displayName: {
+        type: String,
+        required: true
+    },
+    photoURL: {
+        type: String,
+        required: true
+    },
+    content: {
+        type: String,
+        required: true
+    },
+    author: {
         type: Schema.Types.ObjectId, 
         ref: 'User', 
         required: true 

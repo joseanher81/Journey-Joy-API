@@ -16,6 +16,10 @@ const activitySchema = new Schema({
         ref: 'Day',
         required: true 
     },
+    pos: {
+        type: Number,
+        required: true
+    },   
     start: Date
 });
 
