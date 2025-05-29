@@ -1,0 +1,27 @@
+name: CI/CD JourneyJoy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Comprobar que arranca (build mínimo)
+        run: |
+          echo "Verificación mínima sin tests (de momento)"
+          npm run build || echo "No hay script build aún"
